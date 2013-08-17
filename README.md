@@ -1,9 +1,9 @@
 Analyz Granulometry from Images based on segmentation
 
-Release 0.5
+Release 0.1.0
 
 =============================================
-ANALYZ
+CATAROB
 =============================================
 
 
