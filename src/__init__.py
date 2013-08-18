@@ -35,7 +35,6 @@ gui
 """
 
 import lib
-from lib import *
 import core
 import gui
 
