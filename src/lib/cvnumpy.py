@@ -20,7 +20,7 @@ def cv2array(im):
           cv.IPL_DEPTH_64F: 'float64',
       }
     
-    arrdtype=im.depth
+    #arrdtype=im.depth
     a = np.fromstring(
            im.tostring(),
            dtype=depth2dtype[im.depth],
@@ -39,9 +39,9 @@ def array2cv(a):
           'float64': cv.IPL_DEPTH_64F,
       }
     try:
-      nChannels = a.shape[2]
+            nChannels = a.shape[2]
     except:
-      nChannels = 1
+            nChannels = 1
     cv_im = cv.CreateImageHeader((a.shape[1],a.shape[0]),
             dtype2depth[str(a.dtype)],
             nChannels)

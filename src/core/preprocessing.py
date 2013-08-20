@@ -124,15 +124,15 @@ class Preprocessing(Image):
             
         
         if disp:
-            A_a = self.cv2array(a)[:,:,0]    
+            #A_a = self.cv2array(a)[:,:,0]    
         
-            fig1 = pl.figure()
-            pl.imshow(A_a, cmap = pl.cm.gray)
-            pl.title('Composante a de Lab')
-            fig1.show()
+            #fig1 = pl.figure()
+            #pl.imshow(A_a, cmap = pl.cm.gray)
+            #pl.title('Composante a de Lab')
+            #fig1.show()
     
             fig2 = pl.figure()
-            pl.imshow(A_lbl)
+            #pl.imshow(A_lbl)
             pl.title('Image label:Seuillage a '+repr(T))
             fig2.show()
         return np.transpose(np.unravel_index(pl.find(A_center_lbl>0), A_lbl.shape))
@@ -151,20 +151,23 @@ class Preprocessing(Image):
         
         
 if __name__ == "__main__":
-    import sys, tkFileDialog
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
-    else:
-        path = tkFileDialog.askopenfilename()
+    #import sys, tkFileDialog
+    
+    path = "/home/thomas/Bureau/WatershedCV/fond_titre.jpg"
+    #if len(sys.argv) > 1:
+    #    path = sys.argv[1]
+    #else:
+    #    path = tkFileDialog.askopenfilename()
         
     Proc = Preprocessing(path)
     Proc.cv_load()
     coord_laser=Proc.extraction_laser()
 
-
     model, focal_apparent, zoom = Proc.read_metadata()
     hauteur, taille_pixel = Proc.find_height(coord_laser, np.array([Proc.current_image.height, Proc.current_image.width]), focal_apparent, zoom)
-    print model, focal_apparent, zoom,  hauteur, taille_pixel
+
+    print "Model: %s    \nfocal: %i, zoom: %i"%(model, focal_apparent, zoom)
+    print "hauteur: %i \ndimension pixel: %s"%(hauteur, taille_pixel.__repr__())
     
     
     
