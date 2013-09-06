@@ -5,30 +5,49 @@ Created on 20 août 2013
 @author: thomas
 '''
 import unittest
-from catarob.core.preprocessing import Image
+from cv2 import cv
+from catarob.core.preprocessing import Image, Preprocessing
+import numpy as np
 
 class ImageTestPath(unittest.TestCase):
     def setUp(self):
-        self.path = ["eazere", 1, 254, 10.0, "/usr", "/home/test.jpg", "data/image_test.jpg"]
+        print "Setup.."
+        self.path = ["eazere", 1, 254, 10.0, "/usr", "/home/test.jpg", "data/image_test.jpg", "data/fake_type.jpg"]
+
             
     def testPathError(self):
         self.failUnlessRaises(TypeError, Image, self.path)
         
+    def tearDown(self):
+        print "tearDown.."
+        del self.path
 
 class ImageTestMethod(ImageTestPath, unittest.TestCase):
-    def testWrongTypeImage(self):  
-        #self.path = ["eazere", 1, 254, 10.0, "/usr", "/home/test.jpg", "data/image_test.jpg"]
-        self.image = Image(self.path)    
-        self.assertRaises(TypeError, self.image.cv_load, "data/image_test.jpg")
+    def testCVWrongPathImage(self):  
+        #test image non existante
+        self.assertRaises(IOError, cv.LoadImage, "data/image_.jpg")
+    def testCVFakeTypeImage(self):  
+        #Test extension d'image fausse 
+        self.assertRaises(IOError, cv.LoadImage, "data/fake_type.jpg")
 
 class PreprocessingTest(ImageTestPath, unittest.TestCase):
+    def test_find_height_divide_by_zero(self):
+        Prep = Preprocessing("data/fake_type.jpg")   
+        coord_laser = np.array([ [1,1] , [1,1], [1,1], [1,1] ])
+        dim_image = np.array([1, 1])
+        self.assertRaises(RuntimeWarning, Prep.find_height, coord_laser, np.array([0, 0]),1.,1. )
+        self.assertRaises(ZeroDivisionError, Prep.find_height, coord_laser, dim_image,1,1 )
 
-    def test_unexpected_value(self):
-        pass
+
 
 def suite():
-    tests = ['testPathError', 'testWrongTypeImage']
-    return unittest.TestSuite(map(ImageTestMethod, tests))
+    suite = unittest.TestSuite()
+    suite.addTest(ImageTestPath('testPathError'))
+    suite.addTest(ImageTestMethod('testPathError'))    
+    suite.addTest(ImageTestMethod('testCVWrongPathImage'))
+    suite.addTest(ImageTestMethod('testCVFakeTypeImage'))
+    suite.addTest(PreprocessingTest('test_find_height_divide_by_zero'))
+    return suite
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

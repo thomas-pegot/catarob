@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/icones">
+        <file alias="open">icones/opened_folder.svg</file>
+        <file alias="stop">icones/hand.svg</file>
+        <file alias="info">icones/info.svg</file>
+        <file alias="play">icones/catarob.ico</file>
+        <file alias="picme">icones/photo.svg</file>
+        <file alias="help">icones/idea.svg</file>
+        <file alias="stat">icones/bar_chart.svg</file>
+        <file alias="proj">icones/document.svg</file>
+        <file alias="zoom">icones/zoom_in.svg</file>
+    </qresource>
+</RCC>
