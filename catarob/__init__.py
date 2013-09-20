@@ -33,7 +33,7 @@ lib
 gui
     Graphical interface that use core functions
 """
-
+__all__ = ['lib','core','gui']
 import lib
 import core
 import gui

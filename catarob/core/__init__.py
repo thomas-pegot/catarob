@@ -19,4 +19,4 @@ Core Classes
    
 """
 
-__all__ = ['base', 'fitting', 'preprocessing', 'correction', 'segmentation', 'filtering']
+__all__ = ['base', 'fitting', 'preprocessing', 'correction', 'segmentation', 'filtering', 'gpumeanshift']
