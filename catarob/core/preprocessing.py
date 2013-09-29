@@ -3,7 +3,7 @@
 
 .. module:: preprocessing
     :platform: Unix
-    :synopsis; Module working on image with EXIF data.
+    :synopsis: Module working on image with EXIF data.
 
 .. moduleauthor: Thomas Pegot <thomas.pegot@gmail.com>
 
@@ -24,27 +24,33 @@ class Preprocessing(object):
     def read_metadata(path):
         ''' Pick model, focal and zoom data from Exif data of picture.
 
-            :param path: full picture path
-            :type path: str
-            :return: model, focal, zoom
-            :rtype: tuple'''
+        :param path: full picture path
+        :type path: str
+        :return: model, focal, zoom
+        :rtype: tuple'''
         metadata = pyexiv2.ImageMetadata(str(path))
         metadata.read()
         model = metadata['Exif.Image.Model'].value
         focal = float(metadata['Exif.Photo.FocalLength'].value)
         zoom = float(metadata['Exif.Photo.DigitalZoomRatio'].value)
         focal_apparent = focal*zoom
-
         return model, focal_apparent, zoom
 
     @staticmethod
     def cv_resize(image, size_choice=None):
+        """Resize an iplimage
+
+        :param size_choice: "694x462" or "1392x924" or None
+        :returns: image resizei
+        :type size_choice: iplimage CV_8UC3
+        :rtype: same as size_choice
+        """
         prev_image = cv.CloneImage(image)
         if size_choice == "694x462":
             image = cv.CreateImage((696, 462), cv.IPL_DEPTH_8U, 3)
         elif size_choice == "1392x924":
             image = cv.CreateImage((1392, 924), cv.IPL_DEPTH_8U, 3)
-        elif size_choice == None:
+        elif size_choice is None:
             return image
         else:
             print "Bad size_choice arguments: 694 x 462 or 1392 x 924 or None"
@@ -89,16 +95,6 @@ class Preprocessing(object):
     @staticmethod
     def extraction_laser(image, disp=False):
         """ Extraction des laser en image de label
-
-            Parameters
-            -----------
-            In : iplimage
-                Input data.
-            disp : option display image treatment
-
-            Returns
-            -------
-            Out : ndarray shape=(n, 2) cordonnees centres des n lasers
         """
         ## Conversion vers Lab recuperation a
         Lab = cv.CloneImage(image); cv.Zero(Lab)

@@ -1,47 +1,40 @@
-# -*- coding: iso8859-1 -*-
+#!/usr/bin/env python
+# encoding: utf-8
 '''
-Created on 31 août 2013
-
-@author: thomas
+.. module:: filtering.py
+    ::synopsis:
+.. moduleauthor:: Thomas Pegot <thomas.pegot@gmail.com>
+ Last Modified: septembre 23, 2013
 '''
 import gpumeanshift as _pymeanshift
 
-
 class Filtering(object):
     '''
-    Segmenter class using the mean shift algorithm to segment image
+    Segmenter class using the mean shift GPU OpenCV to segment image
+    Example::
+        import cv2
+        from gpumeanshift import filter
+        I = cv2.imread("path/to/image", cv2.CV_IMREAD_COLOR)
+        A = filter(I, 12, 12, 1)
     '''
-
     def __init__(self, spatial_radius=None, range_radius=None):
-        '''
-        Segmenter init function. See function segment for keywords description.
-        '''
-        self._spatial_radius = None
-        self._range_radius = None
-        self._min_density = None
+        """Initialisation:
 
-        if spatial_radius is not None:
-            self.spatial_radius = spatial_radius
-        if range_radius is not None:
-            self.range_radius = range_radius
+        :param spatial_radius: Spatial radius in pixel
+        :param range_radius: Range radius in pixel
+        :type spatial_radius: int
+        :type range_radius: int
+
+        """
+        self._spatial_radius = spatial_radius
+        self._range_radius = range_radius
 
     def __call__(self, image):
-        '''
-        Segment the input image (color or grayscale).
+        '''Call:.
 
-        Keyword arguments:
-            image -- Input image (2-D or 3-D numpy array or compatible).
-
-        Return value: tuple (segmented, labels, nb_regions)
-        segmented -- Image (Numpy array) where the color (or grayscale) of the
-                     regions is the mean value of the pixels belonging to a region.
-        labels -- Image (2-D Numpy array, 32 unsigned bits per element) where a
-                  pixel value correspond to the region number the pixel belongs to.
-        nb_regions -- The number of regions found by the mean shift algorithm.
-
-        NOTES: To avoid unnecessary image conversions when the function is called,
-        make sure the input image array is 8 unsigned bits per pixel and is
-        contiguous in memory.
+        :param image: image color with alpha channel
+        :type image: ndarray 4 channels
+        :returns: filtered image (ndarray 3 channels)
 
         '''
         if self._spatial_radius is None:
@@ -53,14 +46,12 @@ class Filtering(object):
                                    self._range_radius)
 
     def __str__(self):
-        return "<Segmenter: spatial_radius={}, range_radius={},\
-    >".format(
+        return "<Segmenter: spatial_radius={}, range_radius={}>".format(
             self._spatial_radius,
-            self._range_radiu)
+            self._range_radius)
 
     def __repr__(self):
-        return "Segmenter(spatial_radius={}, range_radius={},\
-                )".format(
+        return "Segmenter(spatial_radius={}, range_radius={})".format(
             self._spatial_radius,
             self._range_radius)
 

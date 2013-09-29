@@ -5,8 +5,8 @@ catarob
 
 Provides
   1. An array object of arbitrary homogeneous items
-  2. Fast mathematical operations over arrays
-  3. Linear Algebra, Fourier Transforms, Random Number Generation
+  2. Fast image processing over arrays
+  3. Qt Gui interface
 
 How to use the documentation
 ----------------------------
@@ -21,7 +21,7 @@ The docstring examples assume that `catarob` has been imported as `cb`::
 
 Use the built-in ``help`` function to view a function's docstring::
 
-  >>> help(cb.lib.cvnumpy)
+  >>> help(cb)
   ... # doctest: +SKIP
 
 Available subpackages
@@ -38,4 +38,4 @@ import lib
 import core
 import gui
 
-    
+

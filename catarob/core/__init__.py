@@ -12,11 +12,7 @@ As listed below, this sub-package contains image processing functions and classe
 Core Classes
 ========================
 
-.. autosummary::
-   :toctree: generated/
-
-        Preprocessing
-   
+..
 """
 
 __all__ = ['base', 'fitting', 'preprocessing', 'correction', 'segmentation', 'filtering', 'gpumeanshift']
