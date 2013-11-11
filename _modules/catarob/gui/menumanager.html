@@ -1,0 +1,144 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>catarob.gui.menumanager &mdash; catarob  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="catarob  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for catarob.gui.menumanager</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span>  <span class="n">QtCore</span><span class="p">,</span>  <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="kn">import</span> <span class="n">cv</span>
+<span class="kn">from</span> <span class="nn">Ui_mainwindow</span> <span class="kn">import</span> <span class="n">Ui_MainWindow</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="n">QMainWindow</span>
+
+<div class="viewcode-block" id="MenuManager"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.menumanager.MenuManager">[docs]</a><span class="k">class</span> <span class="nc">MenuManager</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+<div class="viewcode-block" id="MenuManager.load_file"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.menumanager.MenuManager.load_file">[docs]</a>    <span class="k">def</span>  <span class="nf">load_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+		    
+	<span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Open Image&quot;</span><span class="p">),</span><span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Image Files (*.png *.jpg *.bmp&quot;</span><span class="p">))</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LoadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>    
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="n">OpenCVQImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">)</span>
+        
+ </div></div>
+<div class="viewcode-block" id="OpenCVQImage"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.menumanager.OpenCVQImage">[docs]</a><span class="k">class</span> <span class="nc">OpenCVQImage</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opencvBgrImg</span><span class="p">):</span>
+        <span class="n">depth</span><span class="p">,</span> <span class="n">nChannels</span> <span class="o">=</span> <span class="n">opencvBgrImg</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="n">opencvBgrImg</span><span class="o">.</span><span class="n">nChannels</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">!=</span> <span class="n">cv</span><span class="o">.</span><span class="n">IPL_DEPTH_8U</span> <span class="ow">or</span> <span class="n">nChannels</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;the input image must be 8-bit, 3-channel&quot;</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">GetSize</span><span class="p">(</span><span class="n">opencvBgrImg</span><span class="p">)</span>
+        <span class="n">opencvRgbImg</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CreateImage</span><span class="p">((</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">depth</span><span class="p">,</span> <span class="n">nChannels</span><span class="p">)</span>
+        <span class="c"># it&#39;s assumed the image is in BGR format</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">CvtColor</span><span class="p">(</span><span class="n">opencvBgrImg</span><span class="p">,</span> <span class="n">opencvRgbImg</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">CV_BGR2RGB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_imgData</span> <span class="o">=</span> <span class="n">opencvRgbImg</span><span class="o">.</span><span class="n">tostring</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenCVQImage</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_imgData</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> 
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+        <p class="logo"><a href="../../../index.html">
+          <img class="logo" src="../../../_static/catarob.png" alt="Logo"/>
+        </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Last updated on Nov 09, 2013.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

@@ -1,0 +1,296 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>catarob.core.preprocessing &mdash; catarob  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="catarob  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for catarob.core.preprocessing</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: iso8859-1 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">.. module:: preprocessing</span>
+<span class="sd">    :platform: Unix</span>
+<span class="sd">    :synopsis: Module working on image with EXIF data.</span>
+
+<span class="sd">.. moduleauthor: Thomas Pegot &lt;thomas.pegot@gmail.com&gt;</span>
+
+<span class="sd">Created on 17 août 2013</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">pyexiv2</span>
+<span class="kn">from</span> <span class="nn">catarob.core.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pylab</span> <span class="kn">as</span> <span class="nn">pl</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2.cv</span> <span class="kn">as</span> <span class="nn">cv</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="kn">as</span> <span class="nn">ndimage</span>
+<span class="kn">from</span> <span class="nn">catarob.lib</span> <span class="kn">import</span> <span class="n">cvnumpy</span>
+
+<span class="c">#@singleton</span>
+<div class="viewcode-block" id="Preprocessing"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.preprocessing.Preprocessing">[docs]</a><span class="k">class</span> <span class="nc">Preprocessing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Preprocessing.read_metadata"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.preprocessing.Preprocessing.read_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">read_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Pick model, focal and zoom data from Exif data of picture.</span>
+
+<span class="sd">        :param path: full picture path</span>
+<span class="sd">        :type path: str</span>
+<span class="sd">        :return: model, focal, zoom</span>
+<span class="sd">        :rtype: tuple&#39;&#39;&#39;</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">pyexiv2</span><span class="o">.</span><span class="n">ImageMetadata</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s">&#39;Exif.Image.Model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">focal</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s">&#39;Exif.Photo.FocalLength&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">zoom</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s">&#39;Exif.Photo.DigitalZoomRatio&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">focal_apparent</span> <span class="o">=</span> <span class="n">focal</span><span class="o">*</span><span class="n">zoom</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">focal_apparent</span><span class="p">,</span> <span class="n">zoom</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Preprocessing.cv_resize"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.preprocessing.Preprocessing.cv_resize">[docs]</a>    <span class="k">def</span> <span class="nf">cv_resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">size_choice</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resize an iplimage</span>
+
+<span class="sd">        :param size_choice: &quot;694x462&quot; or &quot;1392x924&quot; or None</span>
+<span class="sd">        :returns: image resizei</span>
+<span class="sd">        :type size_choice: iplimage CV_8UC3</span>
+<span class="sd">        :rtype: same as size_choice</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prev_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CloneImage</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size_choice</span> <span class="o">==</span> <span class="s">&quot;694x462&quot;</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CreateImage</span><span class="p">((</span><span class="mi">696</span><span class="p">,</span> <span class="mi">462</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">IPL_DEPTH_8U</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">size_choice</span> <span class="o">==</span> <span class="s">&quot;1392x924&quot;</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CreateImage</span><span class="p">((</span><span class="mi">1392</span><span class="p">,</span> <span class="mi">924</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">IPL_DEPTH_8U</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">size_choice</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">image</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;Bad size_choice arguments: 694 x 462 or 1392 x 924 or None&quot;</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="n">prev_image</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span>
+</div>
+    <span class="nd">@typedef_control</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<div class="viewcode-block" id="Preprocessing.find_height"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.preprocessing.Preprocessing.find_height">[docs]</a>    <span class="k">def</span> <span class="nf">find_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord_laser</span><span class="p">,</span> <span class="n">dim_image</span><span class="p">,</span> <span class="n">focale</span><span class="p">,</span> <span class="n">zoom</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Seek out distance between  camera&lt;-&gt;objet</span>
+
+<span class="sd">            This find distance between object and camera with laser spacing</span>
+
+<span class="sd">            :param coord_laser: Coordinate of four laser</span>
+<span class="sd">            :param dim_image: Dimension of image</span>
+<span class="sd">            :param focale: Focale of camera in mm</span>
+<span class="sd">            :param zoom: Zoom ratio</span>
+<span class="sd">            :type coord_laser: (2,2) nd.array or list</span>
+<span class="sd">            :type dim_image: ndarray (1,2)</span>
+<span class="sd">            :type focale: float</span>
+<span class="sd">            :type zoom: float</span>
+<span class="sd">            :return: distance and pixel size</span>
+<span class="sd">            :rtype: int, int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pts1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">coord_laser</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">coord_laser</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()])</span>
+        <span class="n">pts2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">coord_laser</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">coord_laser</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()])</span>
+        <span class="n">diag_laser_px</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">pts2</span><span class="p">)</span>
+        <span class="c"># Diagonale laser a 2m07 comme reference avec mesure de 109mm</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="mf">43.0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim_image</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">diag_laser_a_2m07</span> <span class="o">=</span> <span class="mi">109</span>
+        <span class="n">ecart_angulaire_depuis_2m07</span> <span class="o">=</span> <span class="mf">6.5</span><span class="o">/</span><span class="mi">100</span>
+        <span class="n">hauteur_estimee</span> <span class="o">=</span> <span class="p">(</span><span class="n">focale</span><span class="o">*</span><span class="n">diag_laser_a_2m07</span><span class="o">/</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">diag_laser_px</span><span class="p">))</span>
+        <span class="n">ecart</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2068</span> <span class="o">-</span> <span class="n">hauteur_estimee</span><span class="p">)</span><span class="o">*</span><span class="n">ecart_angulaire_depuis_2m07</span>
+        <span class="n">hauteur</span> <span class="o">=</span> <span class="n">hauteur_estimee</span><span class="o">-</span><span class="n">ecart</span>
+
+
+        <span class="c"># Dimension laser metrologie avec ajustement de non parallelisme</span>
+        <span class="n">taille_pixel</span> <span class="o">=</span> <span class="p">(</span><span class="n">hauteur</span><span class="o">/</span><span class="n">focale</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">24.0</span><span class="o">/</span><span class="n">dim_image</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">36.0</span><span class="o">/</span><span class="n">dim_image</span><span class="p">[</span><span class="mi">1</span><span class="p">]]))</span>
+
+
+        <span class="k">return</span> <span class="n">hauteur</span><span class="p">,</span> <span class="n">taille_pixel</span></div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Preprocessing.extraction_laser"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.preprocessing.Preprocessing.extraction_laser">[docs]</a>    <span class="k">def</span> <span class="nf">extraction_laser</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Extraction des laser en image de label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">## Conversion vers Lab recuperation a</span>
+        <span class="n">Lab</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CloneImage</span><span class="p">(</span><span class="n">image</span><span class="p">);</span> <span class="n">cv</span><span class="o">.</span><span class="n">Zero</span><span class="p">(</span><span class="n">Lab</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CreateImage</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">GetSize</span><span class="p">(</span><span class="n">image</span><span class="p">),</span> <span class="n">cv</span><span class="o">.</span><span class="n">IPL_DEPTH_8U</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">CvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">Lab</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">CV_BGR2Lab</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">SetImageCOI</span><span class="p">(</span><span class="n">Lab</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">cv</span><span class="o">.</span><span class="n">Copy</span><span class="p">(</span><span class="n">Lab</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c">## Seuillage a au niveau laser</span>
+        <span class="n">BW</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CloneImage</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="n">cv</span><span class="o">.</span><span class="n">Zero</span><span class="p">(</span><span class="n">BW</span><span class="p">)</span>
+        <span class="n">T</span>  <span class="o">=</span> <span class="mi">0</span><span class="o">+</span><span class="mi">128</span>  <span class="c">#    Seuillage a 0+delta avec delta 128</span>
+        <span class="n">Nb_lbl</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">Nb_lbl</span><span class="o">&lt;</span><span class="mi">4</span><span class="p">:</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">Threshold</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">BW</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">CV_THRESH_BINARY</span> <span class="p">)</span>
+            <span class="n">A_BW</span> <span class="o">=</span> <span class="n">cvnumpy</span><span class="o">.</span><span class="n">cv2array</span><span class="p">(</span><span class="n">BW</span><span class="p">)[:,:,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">A_lbl</span><span class="p">,</span> <span class="n">Nb_lbl</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">A_BW</span><span class="p">)</span>
+            <span class="n">T</span><span class="o">-=</span><span class="mi">1</span>
+
+        <span class="c">## Correspondre bon label au laser</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A_BW</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c"># Contrainte de proximite au centre de l image considération d une photo prise distante de plus de 37cm</span>
+        <span class="c"># -&gt; corresond proportion diagonale laser sur diagonale image de 17%</span>
+        <span class="n">proportion</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">diag_constraint</span> <span class="o">=</span> <span class="n">proportion</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A_BW</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+        <span class="c"># Verification contrainte</span>
+        <span class="n">new_lbl</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">A_center_lbl</span> <span class="o">=</span> <span class="n">A_lbl</span><span class="o">*</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="n">new_lbl</span> <span class="o">&lt;</span> <span class="n">Nb_lbl</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Nb_lbl</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">coord_current_lbl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">A_lbl</span><span class="o">==</span><span class="n">lbl</span><span class="p">),</span><span class="n">A_lbl</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">coord_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">coord_current_lbl</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">coord_current_lbl</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">diag_current_lbl</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">coord_center</span><span class="o">-</span><span class="n">center</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">diag_current_lbl</span> <span class="o">&lt;</span> <span class="n">diag_constraint</span><span class="p">:</span>
+                    <span class="n">A_center_lbl</span><span class="p">[</span><span class="n">coord_center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">coord_center</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_lbl</span>
+                    <span class="n">A_lbl</span><span class="p">[</span><span class="n">A_lbl</span><span class="o">==</span><span class="n">lbl</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_lbl</span>
+                    <span class="n">new_lbl</span><span class="o">+=</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">A_lbl</span><span class="p">[</span><span class="n">A_lbl</span><span class="o">==</span><span class="n">lbl</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">proportion</span> <span class="o">-=</span> <span class="mf">0.5</span>
+
+
+        <span class="k">if</span> <span class="n">disp</span><span class="p">:</span>
+            <span class="c">#A_a = self.cv2array(a)[:,:,0]</span>
+
+            <span class="c">#fig1 = pl.figure()</span>
+            <span class="c">#pl.imshow(A_a, cmap = pl.cm.gray)</span>
+            <span class="c">#pl.title(&#39;Composante a de Lab&#39;)</span>
+            <span class="c">#fig1.show()</span>
+
+            <span class="n">fig2</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="c">#pl.imshow(A_lbl)</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Image label:Seuillage a &#39;</span><span class="o">+</span><span class="nb">repr</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+            <span class="n">fig2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unravel_index</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">A_center_lbl</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">),</span> <span class="n">A_lbl</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+
+        <span class="k">def</span> <span class="nf">rectif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">image</span><span class="p">,</span> <span class="n">cadreIn</span><span class="p">,</span> <span class="n">cadreOut</span><span class="p">):</span>
+            <span class="n">prev_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CloneImage</span><span class="p">(</span><span class="n">image</span><span class="p">);</span> <span class="n">cv</span><span class="o">.</span><span class="n">Zero</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">mmat</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">CreateMat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">CV_32FC1</span><span class="p">)</span>
+            <span class="k">print</span> <span class="p">(</span><span class="s">&quot;mmat= </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="nb">repr</span><span class="p">(</span><span class="n">mmat</span><span class="p">))</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">GetPerspectiveTransform</span><span class="p">(</span><span class="n">cadreIn</span> <span class="p">,</span> <span class="n">cadreOut</span><span class="p">,</span> <span class="n">mmat</span><span class="p">)</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">WarpPerspective</span><span class="p">(</span><span class="n">prev_image</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">mmat</span><span class="p">)</span><span class="c">#, flags=cv.CV_WARP_INVERSE_MAP )</span>
+
+
+
+
+
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c">#import sys, tkFileDialog</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;/home/thomas/Bureau/WatershedCV/fond_titre.jpg&quot;</span>
+    <span class="c">#if len(sys.argv) &gt; 1:</span>
+    <span class="c">#    path = sys.argv[1]</span>
+    <span class="c">#else:</span>
+    <span class="c">#    path = tkFileDialog.askopenfilename()</span>
+
+    <span class="n">Proc</span> <span class="o">=</span> <span class="n">Preprocessing</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">Proc</span><span class="o">.</span><span class="n">cv_load</span><span class="p">()</span>
+    <span class="n">coord_laser</span><span class="o">=</span><span class="n">Proc</span><span class="o">.</span><span class="n">extraction_laser</span><span class="p">()</span>
+    <span class="k">print</span> <span class="nb">type</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]))</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">focal_apparent</span><span class="p">,</span> <span class="n">zoom</span> <span class="o">=</span> <span class="n">Proc</span><span class="o">.</span><span class="n">read_metadata</span><span class="p">()</span>
+    <span class="n">hauteur</span><span class="p">,</span> <span class="n">taille_pixel</span> <span class="o">=</span> <span class="n">Proc</span><span class="o">.</span><span class="n">find_height</span><span class="p">(</span><span class="n">coord_laser</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Proc</span><span class="o">.</span><span class="n">current_image</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">Proc</span><span class="o">.</span><span class="n">current_image</span><span class="o">.</span><span class="n">width</span><span class="p">]),</span> <span class="n">focal_apparent</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="s">&quot;Model: </span><span class="si">%s</span><span class="s">    </span><span class="se">\n</span><span class="s">focal: </span><span class="si">%i</span><span class="s">, zoom: </span><span class="si">%i</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">focal_apparent</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+    <span class="k">print</span> <span class="s">&quot;hauteur: </span><span class="si">%i</span><span class="s"> </span><span class="se">\n</span><span class="s">dimension pixel: </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">hauteur</span><span class="p">,</span> <span class="n">taille_pixel</span><span class="o">.</span><span class="n">__repr__</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+        <p class="logo"><a href="../../../index.html">
+          <img class="logo" src="../../../_static/catarob.png" alt="Logo"/>
+        </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Last updated on Nov 09, 2013.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

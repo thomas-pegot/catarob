@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>catarob.core.base &mdash; catarob  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="catarob  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for catarob.core.base</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: iso8859-1 -*- </span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Created on 22 aoÃ»t 2013</span>
+
+<span class="sd">@author: thomas</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+
+<div class="viewcode-block" id="singleton"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.singleton">[docs]</a><span class="k">def</span> <span class="nf">singleton</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+	<span class="n">instances</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">def</span> <span class="nf">get_instance</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>
+			<span class="n">instances</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">instances</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">get_instance</span>
+
+</div>
+<span class="k">class</span> <span class="nc">_MethodDecoratorAdaptor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decorator</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">decorator</span> <span class="o">=</span> <span class="n">decorator</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">function</span>
+	<span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decorator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	<span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decorator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">__get__</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">))</span>
+
+
+
+<div class="viewcode-block" id="auto_adapt_to_methods"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.auto_adapt_to_methods">[docs]</a><span class="k">def</span> <span class="nf">auto_adapt_to_methods</span><span class="p">(</span><span class="n">decorator</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">adapt</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">_MethodDecoratorAdaptor</span><span class="p">(</span><span class="n">decorator</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">adapt</span>
+
+</div>
+<div class="viewcode-block" id="typedef_control"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.typedef_control">[docs]</a><span class="k">def</span> <span class="nf">typedef_control</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Check paramters&#39; type of each input of function&quot;&quot;&quot;</span>
+	<span class="nd">@auto_adapt_to_methods</span>
+	<span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Decorator return changed function&quot;&quot;&quot;</span>
+		<span class="k">def</span> <span class="nf">func_changed</span><span class="p">(</span><span class="o">*</span><span class="n">args_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_</span><span class="p">):</span>
+			<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args_</span><span class="p">)):</span>
+				<span class="k">print</span><span class="p">(</span><span class="s">&quot;Nombre d&#39;argument de la fonction différent de celui du décorateur&quot;</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args_</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">arg_</span><span class="p">):</span>
+					<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Argument {0} n&#39;est pas de type {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+			<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs_</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Argument {0} sans type&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">)))</span>
+				<span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">kwargs_</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+					<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Argument {0} n&#39;est pas de type {1}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+			<span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">func_changed</span>
+	<span class="k">return</span> <span class="n">decorator</span>
+</div>
+<div class="viewcode-block" id="AutoSlots"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.AutoSlots">[docs]</a><span class="k">class</span> <span class="nc">AutoSlots</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Define slot in each class (earn memory)&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+		<span class="n">slots</span> <span class="o">=</span> <span class="n">dct</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;__slots__&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+		<span class="c">#Now get properties from properties and running_properties</span>
+		<span class="k">if</span> <span class="s">&#39;properties&#39;</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+			 <span class="n">slots</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">[</span><span class="s">&#39;properties&#39;</span><span class="p">]))</span>
+		<span class="k">if</span> <span class="s">&#39;running_properties&#39;</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">:</span>
+			<span class="n">slots</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">dct</span><span class="p">[</span><span class="s">&#39;running_properties&#39;</span><span class="p">]))</span>
+			<span class="n">dct</span><span class="p">[</span><span class="s">&#39;__slots__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slots</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span>
+</div>
+<span class="sd">&quot;&quot;&quot; Context Manager Method:</span>
+<span class="sd">	with statement</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="opened_w_error"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.opened_w_error">[docs]</a><span class="k">def</span> <span class="nf">opened_w_error</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+	<span class="k">except</span> <span class="ne">IOError</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span>
+		<span class="k">yield</span> <span class="bp">None</span><span class="p">,</span> <span class="n">err</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">yield</span> <span class="n">f</span><span class="p">,</span> <span class="bp">None</span>
+		<span class="k">finally</span><span class="p">:</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#Example</span>
+<span class="sd">with opened_w_error(&quot;/etc/passwd&quot;, &quot;a&quot;) as (f, err):</span>
+<span class="sd">    if err:</span>
+<span class="sd">	print &quot;IOError:&quot;, err</span>
+<span class="sd">    else:</span>
+<span class="sd">	f.write(&quot;guido::0:0::/:/bin/sh\n&quot;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="working_directory"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.working_directory">[docs]</a><span class="k">def</span> <span class="nf">working_directory</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+	<span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="k">yield</span>
+	<span class="k">finally</span><span class="p">:</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">current_dir</span><span class="p">)</span>
+</div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#Example</span>
+<span class="sd">with working_directory(&quot;data/stuff&quot;):</span>
+<span class="sd">    # do something within data/stuff</span>
+<span class="sd"># here I am back again in the original working directory</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="opened"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.opened">[docs]</a><span class="k">def</span> <span class="nf">opened</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+	<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="k">yield</span> <span class="n">f</span>
+	<span class="k">finally</span><span class="p">:</span>
+		<span class="n">f</span><span class="o">.</span><span class="n">close</span>
+</div>
+<span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="stdout_redirected"><a class="viewcode-back" href="../../../catarob.core.html#catarob.core.base.stdout_redirected">[docs]</a><span class="k">def</span> <span class="nf">stdout_redirected</span><span class="p">(</span><span class="n">new_stdout</span><span class="p">):</span>
+	<span class="n">save_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+	<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">new_stdout</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="k">yield</span> <span class="bp">None</span>
+	<span class="k">finally</span><span class="p">:</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">save_stdout</span>
+</div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">#Examples</span>
+<span class="sd">with opened(filename, &quot;w&quot;) as f:</span>
+<span class="sd">	with stdout_redirected(f):</span>
+<span class="sd">		print &quot;Hello world&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+        <p class="logo"><a href="../../../index.html">
+          <img class="logo" src="../../../_static/catarob.png" alt="Logo"/>
+        </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Last updated on Nov 09, 2013.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

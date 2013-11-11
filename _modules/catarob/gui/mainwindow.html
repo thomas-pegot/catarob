@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>catarob.gui.mainwindow &mdash; catarob  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="catarob  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for catarob.gui.mainwindow</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module implementing MainWindow.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="n">QMainWindow</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignature</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">menumanager</span> <span class="kn">import</span> <span class="n">MenuManager</span><span class="p">,</span> <span class="n">OpenCVQImage</span>
+<span class="kn">from</span> <span class="nn">Ui_mainwindow</span> <span class="kn">import</span> <span class="n">Ui_MainWindow</span>
+<span class="kn">from</span> <span class="nn">termstream</span> <span class="kn">import</span> <span class="n">TermStream</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="kn">import</span> <span class="n">cv</span>
+
+<span class="kn">from</span> <span class="nn">catarob.core.preprocessing</span> <span class="kn">import</span> <span class="n">Preprocessing</span>
+<span class="kn">from</span> <span class="nn">catarob.core.segmentation</span> <span class="kn">import</span> <span class="n">Segmentation</span>
+<span class="kn">from</span> <span class="nn">catarob.core.filtering</span> <span class="kn">import</span> <span class="n">Filtering</span>
+
+<span class="kn">from</span> <span class="nn">catarob.lib.cvnumpy</span> <span class="kn">import</span> <span class="n">cv2array</span>
+
+<span class="n">WINDOW_SIZE</span> <span class="o">=</span> <span class="p">[</span><span class="mi">840</span><span class="p">,</span> <span class="mi">680</span><span class="p">]</span>
+<span class="n">IMAGE_SIZE</span> <span class="o">=</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">Ui_MainWindow</span><span class="p">,</span> <span class="n">Preprocessing</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class documentation goes here.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MainWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menumanager</span> <span class="o">=</span> <span class="n">MenuManager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="o">*</span><span class="n">WINDOW_SIZE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ImageFrame</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="o">*</span><span class="n">IMAGE_SIZE</span><span class="p">)</span>
+        <span class="n">TermStream</span><span class="o">.</span><span class="n">stdout</span><span class="p">()</span><span class="o">.</span><span class="n">messageWritten</span><span class="o">.</span>\
+            <span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">textBrowser</span><span class="o">.</span><span class="n">insertPlainText</span><span class="p">)</span>
+        <span class="n">TermStream</span><span class="o">.</span><span class="n">stderr</span><span class="p">()</span><span class="o">.</span><span class="n">messageWritten</span><span class="o">.</span>\
+            <span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">textBrowser</span><span class="o">.</span><span class="n">insertPlainText</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alloc_attr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dict_step</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">Preprocessing</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Filtering</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s">&quot;Correction&quot;</span><span class="p">,</span>
+                          <span class="mi">3</span><span class="p">:</span> <span class="n">Segmentation</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s">&quot;fitting&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="MainWindow.alloc_attr"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.alloc_attr">[docs]</a>    <span class="k">def</span> <span class="nf">alloc_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="MainWindow.update"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call class and 4update image, and window &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_curr_image</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MainWindow.show_curr_image"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.show_curr_image">[docs]</a>    <span class="k">def</span> <span class="nf">show_curr_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">curr_qimage</span> <span class="o">=</span> <span class="n">OpenCVQImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">)</span>
+        <span class="n">displayed_image</span> <span class="o">=</span> <span class="n">curr_qimage</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="o">*</span><span class="n">IMAGE_SIZE</span><span class="p">)</span>
+        <span class="n">pixmap</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">displayed_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ImageFrame</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">pixmap</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MainWindow.show_curr_metadata"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.show_curr_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">show_curr_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">meta_str</span> <span class="o">=</span> <span class="s">&quot;model : {}</span><span class="se">\n\</span>
+<span class="s">                focal : {}mm</span><span class="se">\n\</span>
+<span class="s">                zoom : {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">meta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HelpLabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="n">meta_str</span><span class="p">))</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_OpenButton_clicked"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_OpenButton_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">on_OpenButton_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Open Image&quot;</span><span class="p">),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">),</span>
+                <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Image Files (*.png *.jpg *.bmp&quot;</span><span class="p">));</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Erreur chargement:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="ne">ValueError</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">LoadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">print</span> <span class="ne">IOError</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_curr_metadata</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_curr_image</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MainWindow.on_RegisterButton_clicked"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_RegisterButton_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">on_RegisterButton_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_resize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SizeBox</span><span class="o">.</span><span class="n">currentText</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">HelpLabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Resize done:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">GetSize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">))))</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionSave_current_image_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionSave_current_image_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionSave_current_image_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Save Image&quot;</span><span class="p">),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QString</span><span class="p">(</span><span class="s">&quot;Image Files (*.png *.jpg *.bmp&quot;</span><span class="p">));</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cv</span><span class="o">.</span><span class="n">SaveImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">save_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">print</span> <span class="ne">ValueError</span>
+</div>
+<div class="viewcode-block" id="MainWindow.on_actionSave_current_image_2_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionSave_current_image_2_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionSave_current_image_2_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_actionSave_current_image_triggered</span><span class="p">()</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionRun_all_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionRun_all_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionRun_all_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: not implemented yet</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionRun_all_2_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionRun_all_2_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionRun_all_2_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: not implemented yet</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionStop_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionStop_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionStop_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: not implemented yet</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionView_statistics_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionView_statistics_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionView_statistics_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: not implemented yet</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionHelp_2_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionHelp_2_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionHelp_2_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO: not implemented yet</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_actionQuit_triggered"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_actionQuit_triggered">[docs]</a>    <span class="k">def</span> <span class="nf">on_actionQuit_triggered</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slot documentation goes here.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Destroy MainWindow object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+    <span class="nd">@pyqtSignature</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="MainWindow.on_FilterButton_clicked"><a class="viewcode-back" href="../../../catarob.gui.html#catarob.gui.mainwindow.MainWindow.on_FilterButton_clicked">[docs]</a>    <span class="k">def</span> <span class="nf">on_FilterButton_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">filt</span> <span class="o">=</span> <span class="n">Filtering</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RangeLCD</span><span class="o">.</span><span class="n">value</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SpaceLCD</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+        <span class="n">arr_image</span> <span class="o">=</span> <span class="n">cv2array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_image</span> <span class="o">=</span> <span class="n">filt</span><span class="p">(</span><span class="n">arr_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+        <p class="logo"><a href="../../../index.html">
+          <img class="logo" src="../../../_static/catarob.png" alt="Logo"/>
+        </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">catarob  documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, Author.
+      Last updated on Nov 09, 2013.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b2.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>
