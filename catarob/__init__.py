@@ -32,10 +32,15 @@ lib
     Basic functions used by several sub-packages.
 gui
     Graphical interface that use core functions
+
+..uml:: {{/home/thomas/workspace/catarob/catarob/}}
+
 """
-__all__ = ['lib','core','gui']
+
+
+__all__ = ['lib', 'core', 'gui']
+
+
 import lib
 import core
 import gui
-
-

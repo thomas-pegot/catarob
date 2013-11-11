@@ -18,6 +18,9 @@ Contents:
 Indices and tables
 ==================
 
+.. uml:: /home/thomas/workspace/catarob/catarob
+
+
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
